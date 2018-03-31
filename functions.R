@@ -1,3 +1,14 @@
+# Load special R libraries
+library(tidyverse)      
+library(tidytext)       
+library(tm)
+library(SnowballC)
+library(RColorBrewer)
+library(wordcloud)
+library(tokenizers)
+library(data.table)
+require(stringi)
+
 #Cloud Funtion
 quick_wordcloud <- function(text, remove_words_vector, find_only){
   # Apply find_only Filter 
@@ -19,7 +30,7 @@ quick_wordcloud <- function(text, remove_words_vector, find_only){
   # Eliminate extra white spaces
   docs <- tm_map(docs, stripWhitespace)
   # Text stemming
-  docs <- tm_map(docs, stemDocument)
+  #docs <- tm_map(docs, stemDocument)
   # Create a TDM
   dtm <- TermDocumentMatrix(docs)
   m <- as.matrix(dtm)
@@ -63,8 +74,6 @@ quick_wordfreq <- function(text, remove_words_vector, main_text){
           col ="lightblue", main = main_text,
           ylab = "Word frequencies")
 }
-
-
 
 #Plot Sentiment Graphs
 sentiment_graph <- function(titles, books){
@@ -125,9 +134,6 @@ print_em_counts <- function(titles, books){
 }
 
 
-
-
-
 #Bar chart of word freq
 bar_chart_em_freq <- function(titles, books){
   
@@ -163,8 +169,6 @@ bar_chart_em_freq <- function(titles, books){
 }
 
 
-
-
 #Book Sent Plot
 book_sent <- function(book){
 tibble(text = book) %>% 
@@ -197,38 +201,5 @@ ggplot(book_sent, aes(index, factor(chapter, levels = sort(unique(chapter), decr
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "top")
-}
-
-
-#Create sentance chunks
-chunk_into_sentences <- function(text) {
-  break_points <- c(1, as.numeric(gregexpr('[[:alnum:] ][.!?]', text)[[1]]) + 1)
-  sentences <- NULL
-  for(i in 1:length(break_points)) {
-    res <- substr(text, break_points[i], break_points[i+1]) 
-    if(i>1) { sentences[i] <- sub('. ', '', res) } else { sentences[i] <- res }
-  }
-  sentences <- sentences[sentences=!is.na(sentences)]
-  return(sentences)
-}
-
-#word filter function
-filter_book <- function(word,text){
-  n = 0
-  character_list <- list()
-  matched_lines <- grep(word, chunk_into_sentences(text))
-  for(i in chunk_into_sentences(text)){
-    if(n %in% matched_lines){
-      print(paste(n, "Found Yous ---->", word))
-      character_list[n] <- stri_unescape_unicode(chunk_into_sentences(text))[n]
-      n = n + 1
-    }
-    else {
-      print(paste(n,"Crap,", word, "got away..."))
-      character_list[n] <- ""
-      n = n + 1
-    }
-  }
-  return(character_list)
 }
 
