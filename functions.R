@@ -1,27 +1,13 @@
-# Load special R libraries
-library(tidyverse)      
-library(tidytext)       
-library(tm)
-library(SnowballC)
-library(RColorBrewer)
-library(wordcloud)
-library(tokenizers)
-library(data.table)
-require(stringi)
-
 #Cloud Funtion
-quick_wordcloud <- function(text, remove_words_vector, find_only){
-  # Apply find_only Filter 
-  docs <- grep(find_only, text, value=T)
-  # Create Vector Source
-  docs <- Corpus(VectorSource(docs))
+quick_wordcloud <- function(text, remove_words_vector){
+  docs <- Corpus(VectorSource(text))
   # Clean that text
   # Convert the text to lower case
   docs <- tm_map(docs, content_transformer(tolower))
   # Remove numbers
   docs <- tm_map(docs, removeNumbers)
   # Remove english common stopwords
-  docs <- tm_map(docs, removeWords, stopwords("en"))
+  docs <- tm_map(docs, removeWords, stopwords("english"))
   # Remove your own stop word
   # specify your stopwords as a character vector
   docs <- tm_map(docs, removeWords, remove_words_vector) 
@@ -30,7 +16,7 @@ quick_wordcloud <- function(text, remove_words_vector, find_only){
   # Eliminate extra white spaces
   docs <- tm_map(docs, stripWhitespace)
   # Text stemming
-  #docs <- tm_map(docs, stemDocument)
+  docs <- tm_map(docs, stemDocument)
   # Create a TDM
   dtm <- TermDocumentMatrix(docs)
   m <- as.matrix(dtm)
@@ -53,7 +39,7 @@ quick_wordfreq <- function(text, remove_words_vector, main_text){
   # Remove numbers
   docs <- tm_map(docs, removeNumbers)
   # Remove english common stopwords
-  docs <- tm_map(docs, removeWords, stopwords("en"))
+  docs <- tm_map(docs, removeWords, stopwords("english"))
   # Remove your own stop word
   # specify your stopwords as a character vector
   docs <- tm_map(docs, removeWords, remove_words_vector) 
@@ -74,6 +60,8 @@ quick_wordfreq <- function(text, remove_words_vector, main_text){
           col ="lightblue", main = main_text,
           ylab = "Word frequencies")
 }
+
+
 
 #Plot Sentiment Graphs
 sentiment_graph <- function(titles, books){
@@ -134,6 +122,9 @@ print_em_counts <- function(titles, books){
 }
 
 
+
+
+
 #Bar chart of word freq
 bar_chart_em_freq <- function(titles, books){
   
@@ -169,6 +160,8 @@ bar_chart_em_freq <- function(titles, books){
 }
 
 
+
+
 #Book Sent Plot
 book_sent <- function(book){
 tibble(text = book) %>% 
@@ -195,11 +188,10 @@ ggplot(book_sent, aes(index, factor(chapter, levels = sort(unique(chapter), decr
   scale_x_continuous(labels = scales::percent, expand = c(0, 0)) +
   scale_y_discrete(expand = c(0, 0)) +
   labs(x = "Chapter Progression", y = "Chapter") +
-  ggtitle("Sherlock Holmes and the Baker Street Irregulars: In Search of Watson",
+  ggtitle("Sherlock Holmes",
           subtitle = "Summary of the net sentiment score as you progress through each chapter") +
   theme_minimal() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         legend.position = "top")
 }
-
