@@ -1,0 +1,169 @@
+---
+title: "sherlock-holmes-sentiment-analysis"
+author: "Michael Lemke"
+date: "3/27/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Welcome to a fun filled sentiment analysis of Sherlock Holmes and the Baker Street Irregulars in Search of Watson. We have a few goals for this activity:
+
+1. **Load Stuff**
+    + First we need the text to analyze
+    + Then we need our special R libraries for determining sentiment
+    + Last we need to load a few user defined functions (UDFs) that I wrote to make the code more readable
+2. **Chop Stuff**
+    + How do you chop stuff?
+    + Chop the book into chapters
+    + Chop the book into sentences
+3. **Find Stuff**
+    + Finding words
+4. **Count Stuff**
+    + Count Words
+    + Count Features
+5. **Visualize Stuff**
+    + Drawing a Wordcloud
+    + Ploting Bar Charts
+6. **What is a Sentiment?**
+    + Name some feelings
+    + Reviewing the sentiment list
+    + Mapping sentiments to text
+    + Counting sentiments
+    + Plotting
+    + Drawing Conclusions
+
+## Let's Load Stuff
+```{r loading, echo = T, warning=FALSE}
+
+# Load text from book
+sherlock_holmes <- readLines("https://raw.githubusercontent.com/decart83/sherlock-holmes-sentiment-analysis/master/corpus.txt")
+
+# Load User Defined Functions
+source("https://raw.githubusercontent.com/decart83/sherlock-holmes-sentiment-analysis/master/functions.R")
+
+```
+
+## Chopping Stuff
+
+Now that we have our text imported into R and our libraries loaded, we are ready to have some fun! We begin by chopping the text into the parts we would like to analyze. 
+
+```{r chopping}
+
+# What is chopping? Well, let's take a string, any string. 
+very_crazy_text <- "ababsteveaba.ba|babcatab"
+
+# Just to check, let's print the sting
+very_crazy_text
+
+# Start chopping with a delimiter
+print(str_split(very_crazy_text, "b"))
+
+```
+
+### You Try It!
+### Q: What other delimeters could we used?
+### Q: What delimeters are meaningful?
+
+
+
+## Let's chop for real!
+
+```{r}
+
+# Split sherlock_holmes into chapters
+sherlock_holmes_chapters <- str_split(sherlock_holmes, "Chapter ")[[1]] 
+
+# Corrent for "" in sherlock_holmes[1] which fixes the chapter index
+sherlock_holmes_chapters <- sherlock_holmes_chapters[nzchar(x=sherlock_holmes_chapters)] 
+
+# Print Chapter 1
+sherlock_holmes_chapters[1]
+
+# Split sherlock_holmes into sentences
+sherlock_holmes_sentences <- str_split(sherlock_holmes, "[.]")[[1]] 
+
+# Corrent for "" in sherlock_holmes[1] which fixes the chapter index
+sherlock_holmes_sentences <- sherlock_holmes_sentences[nzchar(x=sherlock_holmes_sentences)] 
+
+# Print first sentence
+sherlock_holmes_sentences[1]
+
+```
+
+### Q: What is going on with line 10? Did it work?
+### Q: What is going on with line 70 and 71?
+### Q: What is going on with line 132? Is that a sentence?
+
+## Find Stuff
+
+```{r Find Stuff}
+
+# Find stuff in the chapters
+grep("cottage",sherlock_holmes_chapters, value=T)
+
+# Well that sucked... Let's try finding sentences that contain a word
+grep("cottage",sherlock_holmes_sentences, value=T)
+```
+
+# Count Stuff
+
+```{r Count Stuff}
+
+# Count how many sentences have the word wood in them
+#find line
+length(grep("cottage",sherlock_holmes_sentences, value=T))
+
+#Print Emotional Counts
+titles <- c("Chapters")
+books <- list(sherlock_holmes)
+print_em_counts(titles,books)
+```
+
+### Q: What is the length that we are counting? The lenght of Wiggins arm, the word wood, the width of the classroom, what is it measuring? 
+### Q: Can you find how many times Wiggins appears? What about Pilar? Who is more? 
+### Q: How do we count everything?
+
+## Visualize Stuff
+```{r Visualize Stuff, message=FALSE, warning=FALSE}
+
+# Wordcloud
+# quick_wordcloud(text, remove words, filter text for)
+quick_wordcloud(sherlock_holmes_sentences, c(""), c(""))
+
+
+# Climax
+par(mfrow=c(2,2))
+titles <- c("All", "Ch 3", "Ch 18-20","Ch 21-22")
+books <- list(sherlock_holmes, sherlock_holmes[4], sherlock_holmes[19:21],sherlock_holmes[22:23])
+sentiment_graph(titles, books)
+
+# Bar chart of pos and neg words
+bar_chart_em_freq(sherlock_holmes_sentences, c("Wiggins"))
+
+# Whole book sentiment
+book_sent(sherlock_holmes_chapters[1:8])
+
+
+
+```
+
+
+
+## What is a Sentiment?
+```{r Sentients}
+# What are sentiments?
+sentiments
+
+# Sentiments values
+get_sentiments("bing")
+
+
+quick_wordfreq(sherlock_holmes_sentences, c("his", "him", "her", "from", "had"), c("just"), "title")
+
+```
+
